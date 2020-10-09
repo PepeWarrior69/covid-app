@@ -1,0 +1,33 @@
+{
+  "name": "covid-app",
+  "version": "1.0.0",
+  "description": "covid stats in the world",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "server": "nodemon app.js",
+    "client:build": "npm run-script build --prefix client",
+    "client": "npm run start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PepeWarrior69/binitex_test.git"
+  },
+  "keywords": [
+    "covid"
+  ],
+  "author": "alexbabulis.dev@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PepeWarrior69/binitex_test/issues"
+  },
+  "homepage": "https://github.com/PepeWarrior69/binitex_test#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "concurrently": "^5.3.0",
+    "nodemon": "^2.0.4"
+  }
+}
