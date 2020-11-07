@@ -11,7 +11,7 @@ const Diagram = ({ diagramContent }) => {
         setData([ ...array ])
     }, [ diagramContent ])
 
-    let width = data.length * 146
+    let width = data.length * 150
 
     const renderLineChart = (
         <LineChart width={width} height={500} data={data} margin={{ top: 20, right: 20, bottom: 5, left: 20 }}>
