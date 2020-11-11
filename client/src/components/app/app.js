@@ -8,13 +8,17 @@ import Spinner from '../spinner'
 
 import './app.scss'
 
+let fetchedData = [] // save fetched Data
+
 const App = ({ history }) => {
     const [ row, setRow ] = useState({
         country: '',
         cases: 0,
         deaths: 0,
         casesPerTousand: 0,
-        deathsPerTousand: 0
+        deathsPerTousand: 0,
+        casesAllTime: 0,
+        deathsAllTime:0
     })
     const [ monthStats, setMonthStats ] = useState({
         name: '',
@@ -24,8 +28,12 @@ const App = ({ history }) => {
     const [ tableContent, setTableContent ] = useState([])
     const [ diagramContent, setDiagramContent ] = useState([])
     const [ searchInputValue, setSearchInputValue ] = useState('')
-    const { loading, request, error, clearError } = useHttp()
+    const [ yyyy_mm_dd, setyyyy_mm_dd ] = useState('')
+    const [ dateF, setDateF ] = useState('31/12/2019')
+    const [ dateT, setDateT ] = useState('07/11/2020')
 
+    const { loading, request, error, clearError } = useHttp()
+    
     // show http errors if they are there
     useEffect(() => {
         if (error) {
@@ -58,44 +66,65 @@ const App = ({ history }) => {
         }
     }, [monthStats])
 
-    const parsedDataHandler = (place, cases, deaths, casesPerTousand, deathsPerTousand) => {
+    const parsedDataHandler = (place, cases, deaths, casesPerTousand, deathsPerTousand, casesAllTime, deathsAllTime) => {
         setRow({
             country: place,
             cases,
             deaths,
             casesPerTousand,
-            deathsPerTousand
+            deathsPerTousand,
+            casesAllTime,
+            deathsAllTime
         })
     }
 
-    const parseDataForTable = useCallback((data) => {
+
+    const parseDataForTable = useCallback(() => {
+        const dateFormat = (date = new Date()) => { // make correct date format to compare dates
+            let array = date.split('/')
+            return `${array[1]}/${array[0]}/${array[2]}`
+        }
+
+        setTableContent([])  // reset state
+        setDiagramContent([])
+
         let currentCountry = ''
-        let counter = 0
+        let dateFrom = new Date(dateFormat(dateF))
+        let dateTo = new Date(dateFormat(dateT))
+        console.log(dateFrom);
+        console.log(dateTo);
         let deaths = 0
         let cases = 0
+        let allTimeDeaths = 0
+        let allTimeCases = 0
         let casesPerTousand = 0
-        
-        for (let i = 0; i < data.length; i++) {
-            if (currentCountry === data[i].countriesAndTerritories && counter === 14) continue // skip old data
-            if (currentCountry !== data[i].countriesAndTerritories) { // reset counter and current country
-                currentCountry = data[i].countriesAndTerritories
-                counter = 0
-            }
-            
-            if (counter === 0) {
-                casesPerTousand = data[i]['Cumulative_number_for_14_days_of_COVID-19_cases_per_100000'] / 100 // calculate cases per 1000
-                cases = Math.round(casesPerTousand / 1000 * data[i].popData2019) // calculate cases (14 days)
-            }
-            counter++
-            deaths += data[i].deaths
-            
-            if (counter === 14) {
-                parsedDataHandler(currentCountry, cases, deaths, casesPerTousand.toFixed(3), (deaths / data[i].popData2019 * 1000).toFixed(3)) // 3 simbols after dot
+        let deathsPerTousand = 0
+        for (let i = 0; i < fetchedData.length; i++) {
+            if (currentCountry !== fetchedData[i].countriesAndTerritories) { // reset current country
+                if (currentCountry !== '') {
+                    casesPerTousand = (cases / fetchedData[i - 1].popData2019 * 1000).toFixed(3)
+                    deathsPerTousand = (deaths / fetchedData[i - 1].popData2019 * 1000).toFixed(3)
+                    parsedDataHandler(currentCountry, cases, deaths, casesPerTousand, deathsPerTousand, allTimeCases, allTimeDeaths) // 3 simbols after dot
+                }
+               
+                currentCountry = fetchedData[i].countriesAndTerritories
                 deaths = 0
-                continue
+                cases = 0
+                casesPerTousand = 0
+                deathsPerTousand = 0
+                allTimeDeaths = 0
+                allTimeCases = 0
             }
+            let dateRep = new Date(dateFormat(fetchedData[i].dateRep))
+
+            if (dateRep >= dateFrom & dateRep <= dateTo) {
+                deaths += fetchedData[i].deaths
+                cases += fetchedData[i].cases
+            }
+            allTimeDeaths += fetchedData[i].deaths
+            allTimeCases += fetchedData[i].cases
         }
-    }, [])
+    }, [dateF, dateT])
 
     const formattedDate = (d = new Date()) => { // get date format like which we got from server
         let month = String(d.getMonth() + 1);
@@ -104,7 +133,8 @@ const App = ({ history }) => {
       
         if (month.length < 2) month = '0' + month;
         if (day.length < 2) day = '0' + day;
-      
+        setyyyy_mm_dd(`${year}-${month}-${day}`)
+
         return `${day}/${month}/${year}`;
     }
 
@@ -158,34 +188,46 @@ const App = ({ history }) => {
              "https://cors-anywhere.herokuapp.com/") // proxy (the easiest way to get data without error ( cors )!!! )
                 .then((response) => {
                     const data = response.records
-                    parseDataForTable(data)
+                    fetchedData = data
+                    console.log(fetchedData);
+                    parseDataForTable()
                     return data
                 })
                 .then((data) => {
                     parseDataForDiagram(data)
+                    return data
                 })
         }
         fetchData()
     }, [ request, parseDataForTable, parseDataForDiagram ])
-    // if loading then return spinner
-    if (loading) {
-        return (
-            <Spinner/>
-        )
-    }
 
     const tableSearchHandler = (e) => {
         setSearchInputValue(e.target.value)
     }
 
+    const selectedPeriodFromHandler = (from) => {
+        setDateF(from)
+    }
+
+    const selectedPeriodToHandler = (to) => {
+        setDateT(to)
+    }
+    
     // default redirect to /table
     return (
         <div className="app container-fluid text-center">
             <div className="nav nav-tabs" id="covidTab" role="tablist">
-                <Header path={history.location.pathname} tableSearchHandler={tableSearchHandler}/>
+                <Header 
+                    path={history.location.pathname} 
+                    tableSearchHandler={tableSearchHandler} 
+                    todaysDate={yyyy_mm_dd} 
+                    selectedPeriodFromHandler={selectedPeriodFromHandler}
+                    selectedPeriodToHandler={selectedPeriodToHandler}/>
             </div>
             {history.location.pathname === '/' ? <Redirect to="/table"/>: false} 
-            <Switch>
+            { // if loading then return spinner
+            loading ? <Spinner/> : 
+            (<Switch>
                 <Route 
                     path="/table" 
                     render={() => 
@@ -199,7 +241,8 @@ const App = ({ history }) => {
                         <Diagram 
                             diagramContent={diagramContent}
                         />}/>
-            </Switch>
+            </Switch>) }
+            
         </div>
     )
 }

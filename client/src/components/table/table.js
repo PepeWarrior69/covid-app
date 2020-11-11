@@ -23,12 +23,20 @@ const Table = ({ tableContent, searchInputValue }) => {
 
     const tableContentHandler = () => {
         const tableFiltredData = getTableContent() 
-        return tableFiltredData.map(( element ) => {
+        let style
+        return tableFiltredData.map(( element, index ) => {
+            if (index % 2 === 1) {
+                style = ""
+            } else {
+                style = "dark__row"
+            }
             return (
-                <tr key={element.country}>
+                <tr key={element.country} className={style}>
                     <td>{element.country}</td>
                     <td>{element.cases}</td>
                     <td>{element.deaths}</td>
+                    <td>{element.casesAllTime}</td>
+                    <td>{element.deathsAllTime}</td>
                     <td>{element.casesPerTousand}</td>
                     <td>{element.deathsPerTousand}</td>
                 </tr>
@@ -90,7 +98,7 @@ const Table = ({ tableContent, searchInputValue }) => {
         setSortByCasesPerTousand(false)
         setSortByAlphabetState(!sortByAlphabetState)
 
-        if (sortByAlphabetState) {
+        if (!sortByAlphabetState) {
             setArrowUp(targetArrow)
         } else {
             setArrowDown(targetArrow)
@@ -123,9 +131,9 @@ const Table = ({ tableContent, searchInputValue }) => {
         setSortByCasesPerTousand(false)
 
         if (sortByCases) {
-            setArrowDown(targetArrow)
-        } else {
             setArrowUp(targetArrow)
+        } else {
+            setArrowDown(targetArrow)
         }
 
         let sortedArray =  array.sort(( a, b ) => {
@@ -152,9 +160,9 @@ const Table = ({ tableContent, searchInputValue }) => {
         setSortByCasesPerTousand(false)
 
         if (sortByDeaths) {
-            setArrowDown(targetArrow)
-        } else {
             setArrowUp(targetArrow)
+        } else {
+            setArrowDown(targetArrow)
         }
 
         let sortedArray =  array.sort(( a, b ) => {
@@ -181,9 +189,9 @@ const Table = ({ tableContent, searchInputValue }) => {
         setSortByDeathsPerTousand(false)
 
         if (sortByCasesPerTousand) {
-            setArrowDown(targetArrow)
-        } else {
             setArrowUp(targetArrow)
+        } else {
+            setArrowDown(targetArrow)
         }
 
         let sortedArray =  array.sort(( a, b ) => {
@@ -210,9 +218,9 @@ const Table = ({ tableContent, searchInputValue }) => {
         setSortByDeaths(false)
 
         if (sortByDeathsPerTousand) {
-            setArrowDown(targetArrow)
-        } else {
             setArrowUp(targetArrow)
+        } else {
+            setArrowDown(targetArrow)
         }
 
         let sortedArray =  array.sort(( a, b ) => {
@@ -234,12 +242,18 @@ const Table = ({ tableContent, searchInputValue }) => {
                 <thead>
                     <tr>
                         <th scope="col" className="table__col" onClick={sortByAlphabet}>Страна 
-                            <i className="arrow up"></i>
+                            <i className="arrow down"></i>
                         </th>
                         <th scope="col" className="table__col" onClick={sortByCasesHandler}>Количество случаев
                             <i className="arrow right"></i>
                         </th>
                         <th scope="col" className="table__col" onClick={sortByDeathsHandler}>Количество смертей
+                            <i className="arrow right"></i>
+                        </th>
+                        <th scope="col" className="table__col" onClick={sortByCasesHandler}>Количество случаев всего
+                            <i className="arrow right"></i>
+                        </th>
+                        <th scope="col" className="table__col" onClick={sortByDeathsHandler}>Количество смертей всего
                             <i className="arrow right"></i>
                         </th>
                         <th scope="col" className="table__col" onClick={sortByCasesPerTousandHandler}>Количество случаев на 1000 жителей 
