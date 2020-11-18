@@ -28,9 +28,8 @@ const App = ({ history }) => {
     const [ tableContent, setTableContent ] = useState([])
     const [ diagramContent, setDiagramContent ] = useState([])
     const [ searchInputValue, setSearchInputValue ] = useState('')
-    const [ yyyy_mm_dd, setyyyy_mm_dd ] = useState('')
-    const [ dateF, setDateF ] = useState('31/12/2019')
-    const [ dateT, setDateT ] = useState('07/11/2020')
+    const [ dateF, setDateF ] = useState('')
+    const [ dateT, setDateT ] = useState('')
 
     const { loading, request, error, clearError } = useHttp()
     
@@ -100,7 +99,7 @@ const App = ({ history }) => {
         let casesPerTousand = 0
         let deathsPerTousand = 0
         for (let i = 0; i < fetchedData.length; i++) {
-            if (currentCountry !== fetchedData[i].countriesAndTerritories) { // reset current country
+            if (currentCountry !== fetchedData[i].countriesAndTerritories || currentCountry === 'Zimbabwe' & fetchedData[i].dateRep === '21/03/2020') { // reset current country
                 if (currentCountry !== '') {
                     casesPerTousand = (cases / fetchedData[i - 1].popData2019 * 1000).toFixed(3)
                     deathsPerTousand = (deaths / fetchedData[i - 1].popData2019 * 1000).toFixed(3)
@@ -133,7 +132,6 @@ const App = ({ history }) => {
       
         if (month.length < 2) month = '0' + month;
         if (day.length < 2) day = '0' + day;
-        setyyyy_mm_dd(`${year}-${month}-${day}`)
 
         return `${day}/${month}/${year}`;
     }
@@ -220,7 +218,6 @@ const App = ({ history }) => {
                 <Header 
                     path={history.location.pathname} 
                     tableSearchHandler={tableSearchHandler} 
-                    todaysDate={yyyy_mm_dd} 
                     selectedPeriodFromHandler={selectedPeriodFromHandler}
                     selectedPeriodToHandler={selectedPeriodToHandler}/>
             </div>

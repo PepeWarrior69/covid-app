@@ -3,18 +3,25 @@ import { Link } from 'react-router-dom'
 
 import './header.scss'
 
-const Header = ({ path, tableSearchHandler, todaysDate, selectedPeriodFromHandler, selectedPeriodToHandler }) => {
+const Header = ({ path, tableSearchHandler, selectedPeriodFromHandler, selectedPeriodToHandler }) => {
 
     const dateFormat = (date) => {
         let array = date.split('-')
         return `${array[2]}/${array[1]}/${array[0]}`
     }
-    const [ dateFrom, setDateFrom ] = useState('2019-12-31')
-    const [ dateTo, setDateTo ] = useState(todaysDate)
 
-    useEffect(() => {
-        setDateTo(todaysDate)
-    }, [todaysDate])
+    const date = (d = new Date()) => { // get date format like which we got from server
+        let month = String(d.getMonth() + 1)
+        let day = String(d.getDate())
+        const year = String(d.getFullYear())
+      
+        if (month.length < 2) month = '0' + month
+        if (day.length < 2) day = '0' + day
+        return`${year}-${month}-${day}`
+    }
+
+    const [ dateFrom, setDateFrom ] = useState('2019-12-31')
+    const [ dateTo, setDateTo ] = useState(date())
 
     useEffect(() => {
         selectedPeriodFromHandler(dateFormat(dateFrom))
@@ -59,6 +66,7 @@ const Header = ({ path, tableSearchHandler, todaysDate, selectedPeriodFromHandle
                     name="from" 
                     defaultValue={dateFrom} 
                     min="2019-12-31"
+                    max={dateTo}
                     onChange={(e) => {
                         setDateFrom(e.target.value)
                     }}/>
@@ -68,7 +76,8 @@ const Header = ({ path, tableSearchHandler, todaysDate, selectedPeriodFromHandle
                     id="to" 
                     name="to" 
                     defaultValue={dateTo} 
-                    max={todaysDate}
+                    max={date()}
+                    min={dateFrom}
                     onChange={(e) => {
                         setDateTo(e.target.value)
                     }}/>
