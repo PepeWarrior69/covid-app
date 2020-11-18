@@ -99,7 +99,7 @@ const App = ({ history }) => {
         let casesPerTousand = 0
         let deathsPerTousand = 0
         for (let i = 0; i < fetchedData.length; i++) {
-            if (currentCountry !== fetchedData[i].countriesAndTerritories || currentCountry === 'Zimbabwe' & fetchedData[i].dateRep === '21/03/2020') { // reset current country
+            if (currentCountry !== fetchedData[i].countriesAndTerritories || currentCountry === 'Zimbabwe' & fetchedData[i].dateRep === '21/03/2020') { // save data to state
                 if (currentCountry !== '') {
                     casesPerTousand = (cases / fetchedData[i - 1].popData2019 * 1000).toFixed(3)
                     deathsPerTousand = (deaths / fetchedData[i - 1].popData2019 * 1000).toFixed(3)

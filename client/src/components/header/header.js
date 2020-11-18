@@ -10,7 +10,7 @@ const Header = ({ path, tableSearchHandler, selectedPeriodFromHandler, selectedP
         return `${array[2]}/${array[1]}/${array[0]}`
     }
 
-    const date = (d = new Date()) => { // get date format like which we got from server
+    const date = (d = new Date()) => {
         let month = String(d.getMonth() + 1)
         let day = String(d.getDate())
         const year = String(d.getFullYear())
