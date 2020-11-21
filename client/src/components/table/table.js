@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 
 import './table.scss'
 
-const Table = ({ tableContent, searchInputValue }) => {
+const Table = ({ tableContent, searchInputValue, sortingColumn, sortingColumnFrom, sortingColumnTo }) => {
     const [ content, setContent ] = useState([...tableContent])
     // states for arrows
     const [ sortByCases, setSortByCases ] = useState(false)
@@ -21,37 +21,6 @@ const Table = ({ tableContent, searchInputValue }) => {
         setSearchValue(searchInputValue)
     }, [searchInputValue])
 
-    const tableContentHandler = () => {
-        const tableFiltredData = getTableContent() 
-        let style
-        return tableFiltredData.map(( element, index ) => {
-            if (index % 2 === 1) {
-                style = ""
-            } else {
-                style = "dark__row"
-            }
-            return (
-                <tr key={element.country} className={style}>
-                    <td>{element.country}</td>
-                    <td>{element.cases}</td>
-                    <td>{element.deaths}</td>
-                    <td>{element.casesAllTime}</td>
-                    <td>{element.deathsAllTime}</td>
-                    <td>{element.casesPerTousand}</td>
-                    <td>{element.deathsPerTousand}</td>
-                </tr>
-            )
-        })
-    }
-    // filter
-    const getTableContent = () => {
-        return content.filter((item) => {
-            if ( item.country.toLowerCase().indexOf( searchValue.toLowerCase() ) > -1 ) {
-                return item
-            }
-            return false
-        })
-    }
     // arrows
     const setArrowUp = (arrow) => {
         arrow.classList.remove('right')
@@ -236,6 +205,105 @@ const Table = ({ tableContent, searchInputValue }) => {
         setContent([...sortedArray])
     }
 
+    // filter
+    const getTableContent = () => {
+        return content.filter((item) => {
+            if ( item.country.toLowerCase().indexOf( searchValue.toLowerCase() ) > -1 ) {
+                return item
+            }
+            return false
+        })
+    }
+
+    const filterByColumn = (data) => {
+        let filtredData
+        switch (sortingColumn) {
+            case "Выберите поле...":
+                filtredData = data
+                break;
+            case "Количество случаев":
+                filtredData = data.filter((item) => {
+                    if (item.cases >= sortingColumnFrom & item.cases <= sortingColumnTo) {
+                        return item
+                    }
+                    return false
+                })
+                break
+            case "Количество смертей":
+                filtredData = data.filter((item) => {
+                    if (item.deaths >= sortingColumnFrom & item.deaths <= sortingColumnTo) {
+                        return item
+                    }
+                    return false
+                })
+                break
+            case "Количество случаев всего":
+                filtredData = data.filter((item) => {
+                    if (item.casesAllTime >= sortingColumnFrom & item.casesAllTime <= sortingColumnTo) {
+                        return item
+                    }
+                    return false
+                })
+                break
+            case "Количество смертей всего":
+                filtredData = data.filter((item) => {
+                    if (item.deathsAllTime >= sortingColumnFrom & item.deathsAllTime <= sortingColumnTo) {
+                        return item
+                    }
+                    return false
+                })
+                break
+            case "Количество случаев на 1000 жителей":
+                filtredData = data.filter((item) => {
+                    if (item.casesPerTousand >= sortingColumnFrom & item.casesPerTousand <= sortingColumnTo) {
+                        return item
+                    }
+                    return false
+                })
+                break
+            case "Количество смертей на 1000 жителей":
+                filtredData = data.filter((item) => {
+                    if (item.deathsPerTousand >= sortingColumnFrom & item.deathsPerTousand <= sortingColumnTo) {
+                        return item
+                    }
+                    return false
+                })
+                break
+        
+            default:
+                filtredData = data
+                break;
+        }
+
+        return filtredData
+    }
+
+    const tableContentHandler = () => {
+        let tableFiltredData = getTableContent() 
+        let style
+
+        tableFiltredData = filterByColumn(tableFiltredData)
+
+        return tableFiltredData.map(( element, index ) => {
+            if (index % 2 === 1) {
+                style = ""
+            } else {
+                style = "dark__row"
+            }
+            return (
+                <tr key={element.country} className={style}>
+                    <td>{element.country}</td>
+                    <td>{element.cases}</td>
+                    <td>{element.deaths}</td>
+                    <td>{element.casesAllTime}</td>
+                    <td>{element.deathsAllTime}</td>
+                    <td>{element.casesPerTousand}</td>
+                    <td>{element.deathsPerTousand}</td>
+                </tr>
+            )
+        })
+    }
+
     return (
         <div className="tab-panel" id="home" role="tabpanel" aria-labelledby="home-tab">
             <table className="table table-bordered">
@@ -266,7 +334,6 @@ const Table = ({ tableContent, searchInputValue }) => {
                 </thead>
                 <tbody>
                     {tableContentHandler()}
-                    
                 </tbody>
             </table>
         </div>

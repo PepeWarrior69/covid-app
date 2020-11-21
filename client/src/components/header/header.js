@@ -3,7 +3,14 @@ import { Link } from 'react-router-dom'
 
 import './header.scss'
 
-const Header = ({ path, tableSearchHandler, selectedPeriodFromHandler, selectedPeriodToHandler }) => {
+const Header = ({ path, // props
+    tableSearchHandler, 
+    selectedPeriodFromHandler, 
+    selectedPeriodToHandler, 
+    updateSortingByColumn, // setState
+    updateSortingValueFrom, 
+    updateSortingValueTo 
+    }) => {
 
     const dateFormat = (date) => {
         let array = date.split('-')
@@ -44,7 +51,7 @@ const Header = ({ path, tableSearchHandler, selectedPeriodFromHandler, selectedP
             return (
                 <form className="form-inline my-2 my-lg-0">
                     <input 
-                        className="form-control mr-sm-2" 
+                        className="form-control mr-sm-2 mb-2 ml-5" 
                         type="search" 
                         placeholder="Find country" 
                         aria-label="Search" 
@@ -58,7 +65,7 @@ const Header = ({ path, tableSearchHandler, selectedPeriodFromHandler, selectedP
 
     const renderPeriodSelection = () => {
         return (
-            <div className="period">
+            <div className="period d-flex justify-content-start">
                 <label htmlFor="from">Период от</label>
                 <input 
                     type="date" 
@@ -85,6 +92,55 @@ const Header = ({ path, tableSearchHandler, selectedPeriodFromHandler, selectedP
         )
     }
 
+    const renderFilterByColumn = () => {
+        let colNames = ['Количество случаев', 
+        'Количество смертей', 
+        'Количество случаев всего', 
+        'Количество смертей всего', 
+        'Количество случаев на 1000 жителей', 
+        'Количество смертей на 1000 жителей']
+
+        if (path === '/table') {
+            return (
+                <div className="input-group mb-1">
+                    <div className="input-group-prepend">
+                        <label className="input-group-text mb-1" htmlFor="inputGroupSelect01">Сортировка</label>
+                    </div>
+                    <select className="custom-select" id="inputGroupSelect01" onChange={(e) => updateSortingByColumn(e.target.value)}>
+                        <option defaultValue>Выберите поле...</option>
+                        { colNames.map((column) => {
+                            return <option key={column} value={column}>{column}</option>
+                        }) }
+                    </select>
+                    <div className="d-flex"> 
+                        <div className="input-group mb-1 ml-4">
+                            <div className="input-group-prepend">
+                            <span className="input-group-text" id="inputGroup-sizing-sm">От</span>
+                            </div>
+                            <input 
+                                type="number" 
+                                className="form-control" 
+                                aria-label="Sizing example input" 
+                                aria-describedby="inputGroup-sizing-sm" 
+                                onChange={(e) => updateSortingValueFrom(e.target.value)}/>
+                        </div>
+                        <div className="input-group mb-1 ml-4">
+                            <div className="input-group-prepend">
+                            <span className="input-group-text" id="inputGroup-sizing-sm">До</span>
+                            </div>
+                            <input 
+                                type="number" 
+                                className="form-control"
+                                aria-label="Sizing example input" 
+                                aria-describedby="inputGroup-sizing-sm" 
+                                onChange={(e) => updateSortingValueTo(e.target.value)}/>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+    }
+
     return (
         <div>
             {renderPeriodSelection()}
@@ -105,6 +161,7 @@ const Header = ({ path, tableSearchHandler, selectedPeriodFromHandler, selectedP
                 </div>
                 <div className="d-flex">
                     {renderSearch()}
+                    {renderFilterByColumn()}
                 </div>
             </div>
         </div>

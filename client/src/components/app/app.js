@@ -31,6 +31,10 @@ const App = ({ history }) => {
     const [ dateF, setDateF ] = useState('')
     const [ dateT, setDateT ] = useState('')
 
+    const [ sortingColumn, setSortingColumn ] = useState('Выберите поле...')
+    const [ sortingColumnFrom, setSortingColumnFrom ] = useState(0)
+    const [ sortingColumnTo, setSortingColumnTo ] = useState(10000000)
+
     const { loading, request, error, clearError } = useHttp()
     
     // show http errors if they are there
@@ -90,8 +94,7 @@ const App = ({ history }) => {
         let currentCountry = ''
         let dateFrom = new Date(dateFormat(dateF))
         let dateTo = new Date(dateFormat(dateT))
-        console.log(dateFrom);
-        console.log(dateTo);
+    
         let deaths = 0
         let cases = 0
         let allTimeDeaths = 0
@@ -187,7 +190,6 @@ const App = ({ history }) => {
                 .then((response) => {
                     const data = response.records
                     fetchedData = data
-                    console.log(fetchedData);
                     parseDataForTable()
                     return data
                 })
@@ -210,6 +212,16 @@ const App = ({ history }) => {
     const selectedPeriodToHandler = (to) => {
         setDateT(to)
     }
+
+    const updateSortingByColumn = (value) => {
+        setSortingColumn(value)
+    }
+    const updateSortingValueFrom = (value) => {
+        setSortingColumnFrom(parseInt(value))
+    }
+    const updateSortingValueTo = (value) => {
+        setSortingColumnTo(parseInt(value))
+    }
     
     // default redirect to /table
     return (
@@ -219,7 +231,10 @@ const App = ({ history }) => {
                     path={history.location.pathname} 
                     tableSearchHandler={tableSearchHandler} 
                     selectedPeriodFromHandler={selectedPeriodFromHandler}
-                    selectedPeriodToHandler={selectedPeriodToHandler}/>
+                    selectedPeriodToHandler={selectedPeriodToHandler}
+                    updateSortingByColumn={updateSortingByColumn}
+                    updateSortingValueFrom={updateSortingValueFrom}
+                    updateSortingValueTo={updateSortingValueTo}/>
             </div>
             {history.location.pathname === '/' ? <Redirect to="/table"/>: false} 
             { // if loading then return spinner
@@ -231,6 +246,9 @@ const App = ({ history }) => {
                         <Table 
                             tableContent={tableContent} 
                             searchInputValue={searchInputValue} 
+                            sortingColumn={sortingColumn}
+                            sortingColumnFrom={sortingColumnFrom}
+                            sortingColumnTo={sortingColumnTo}
                         />}/>
                 <Route 
                     path="/diagram" 
