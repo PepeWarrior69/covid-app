@@ -33,7 +33,7 @@ const App = ({ history }) => {
 
     const [ sortingColumn, setSortingColumn ] = useState('Выберите поле...')
     const [ sortingColumnFrom, setSortingColumnFrom ] = useState(0)
-    const [ sortingColumnTo, setSortingColumnTo ] = useState(10000000)
+    const [ sortingColumnTo, setSortingColumnTo ] = useState(10000000000)
 
     const { loading, request, error, clearError } = useHttp()
     
@@ -222,6 +222,20 @@ const App = ({ history }) => {
     const updateSortingValueTo = (value) => {
         setSortingColumnTo(parseInt(value))
     }
+
+    const resetFilter = () => {
+        setSearchInputValue('')
+        document.querySelector('#search').value = ''
+
+        setSortingColumn('Выберите поле...')
+        document.querySelector('#colSelecter').value = 'Выберите поле...'
+        
+        setSortingColumnFrom(0)
+        document.querySelector('#colValueFrom').value = ''
+
+        setSortingColumnTo(10000000000)
+        document.querySelector('#colValueTo').value = ''
+    }
     
     // default redirect to /table
     return (
@@ -234,7 +248,8 @@ const App = ({ history }) => {
                     selectedPeriodToHandler={selectedPeriodToHandler}
                     updateSortingByColumn={updateSortingByColumn}
                     updateSortingValueFrom={updateSortingValueFrom}
-                    updateSortingValueTo={updateSortingValueTo}/>
+                    updateSortingValueTo={updateSortingValueTo}
+                    resetFilter={resetFilter}/>
             </div>
             {history.location.pathname === '/' ? <Redirect to="/table"/>: false} 
             { // if loading then return spinner

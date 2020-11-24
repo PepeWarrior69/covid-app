@@ -9,7 +9,8 @@ const Header = ({ path, // props
     selectedPeriodToHandler, 
     updateSortingByColumn, // setState
     updateSortingValueFrom, 
-    updateSortingValueTo 
+    updateSortingValueTo,
+    resetFilter 
     }) => {
 
     const dateFormat = (date) => {
@@ -52,6 +53,7 @@ const Header = ({ path, // props
                 <form className="form-inline my-2 my-lg-0">
                     <input 
                         className="form-control mr-sm-2 mb-2 ml-5" 
+                        id="search"
                         type="search" 
                         placeholder="Find country" 
                         aria-label="Search" 
@@ -104,9 +106,9 @@ const Header = ({ path, // props
             return (
                 <div className="input-group mb-1">
                     <div className="input-group-prepend">
-                        <label className="input-group-text mb-1" htmlFor="inputGroupSelect01">Сортировка</label>
+                        <label className="input-group-text mb-1" htmlFor="colSelecter">Сортировка</label>
                     </div>
-                    <select className="custom-select" id="inputGroupSelect01" onChange={(e) => updateSortingByColumn(e.target.value)}>
+                    <select className="custom-select" id="colSelecter" onChange={(e) => updateSortingByColumn(e.target.value)}>
                         <option defaultValue>Выберите поле...</option>
                         { colNames.map((column) => {
                             return <option key={column} value={column}>{column}</option>
@@ -120,6 +122,7 @@ const Header = ({ path, // props
                             <input 
                                 type="number" 
                                 className="form-control" 
+                                id="colValueFrom"
                                 aria-label="Sizing example input" 
                                 aria-describedby="inputGroup-sizing-sm" 
                                 onChange={(e) => updateSortingValueFrom(e.target.value)}/>
@@ -131,6 +134,7 @@ const Header = ({ path, // props
                             <input 
                                 type="number" 
                                 className="form-control"
+                                id="colValueTo"
                                 aria-label="Sizing example input" 
                                 aria-describedby="inputGroup-sizing-sm" 
                                 onChange={(e) => updateSortingValueTo(e.target.value)}/>
@@ -141,9 +145,35 @@ const Header = ({ path, // props
         }
     }
 
+    const renderResetButton = () => {
+        const resetDate = () => {
+            setDateFrom('2019-12-31')
+            setDateTo(date())
+        }
+        if (path === '/table') {
+            return(
+                <button 
+                    type="button" 
+                    className="btn btn-warning ml-5"
+                    onClick={() => {
+                        resetDate()
+                        resetFilter()
+                        document.querySelector('#from').value = '2019-12-31'
+                        document.querySelector('#to').value = date()
+                    }}
+                    >Сбросить фильтр
+                    </button>
+            )
+        }
+        return false
+    }
+
     return (
         <div>
-            {renderPeriodSelection()}
+            <div className="d-flex mb-2">
+                {renderPeriodSelection()}
+                {renderResetButton()}
+            </div>
             <div className="d-flex w-100 justify-content-between">
                 <div className="d-flex">
                     <Link 
